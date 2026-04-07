@@ -13,13 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: og.title,
     description: og.description,
-    openGraph: {
-      title: og.title,
-      description: og.description,
-      url: og.url,
-      siteName: og.siteName,
-      type: "website",
-    },
+    openGraph: { title: og.title, description: og.description, url: og.url, siteName: og.siteName, type: "website" },
     twitter: { card: "summary_large_image", title: og.title, description: og.description },
   };
 }
@@ -39,171 +33,215 @@ export default async function JobDetailPage({ params }: Props) {
     .filter((j) => j.id !== job.id && j.category === job.category)
     .slice(0, 3);
 
+  const daysAgo = Math.max(1, Math.floor(
+    (Date.now() - new Date(job.datePosted).getTime()) / (1000 * 60 * 60 * 24)
+  ));
+
   return (
     <div>
-      {/* JSON-LD Structured Data for Google for Jobs eligibility */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://churchjobs.com" },
+              { "@type": "ListItem", position: 2, name: "Jobs", item: "https://churchjobs.com/jobs" },
+              { "@type": "ListItem", position: 3, name: job.title, item: `https://churchjobs.com/jobs/${job.slug}` },
+            ],
+          }),
+        }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        {/* Breadcrumb structured data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "https://churchjobs.com" },
-                { "@type": "ListItem", position: 2, name: "Jobs", item: "https://churchjobs.com/jobs" },
-                { "@type": "ListItem", position: 3, name: job.title, item: `https://churchjobs.com/jobs/${job.slug}` },
-              ],
-            }),
-          }}
-        />
+      {/* Above-the-fold header */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumb */}
+          <nav className="text-sm text-slate-500 mb-6 flex items-center gap-2">
+            <a href="/" className="hover:text-teal-700">Home</a>
+            <span className="text-slate-300">›</span>
+            <a href="/jobs" className="hover:text-teal-700">Jobs</a>
+            <span className="text-slate-300">›</span>
+            <span className="text-slate-700 font-medium truncate">{job.title}</span>
+          </nav>
 
-        {/* Breadcrumb */}
-        <nav className="text-sm text-gray-500 mb-6">
-          <a href="/" className="hover:text-gray-900">Home</a>
-          <span className="mx-2">›</span>
-          <a href="/jobs" className="hover:text-gray-900">Jobs</a>
-          <span className="mx-2">›</span>
-          <a href={`/jobs/${job.category}`} className="hover:text-gray-900">
-            {job.category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
-          </a>
-          <span className="mx-2">›</span>
-          <span className="text-gray-900">{job.title}</span>
-        </nav>
-
-        <div className="flex flex-col lg:flex-row gap-10">
-          {/* Main content */}
-          <div className="flex-1">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">{job.title}</h1>
-              <p className="text-lg text-gray-600 mt-2">{job.church.name}</p>
-              <div className="flex flex-wrap gap-3 mt-4 text-sm">
-                <span className="bg-gray-100 px-3 py-1 rounded-full text-gray-700">
-                  📍 {job.location.city}, {job.location.stateCode}
+          <div className="flex items-start gap-5">
+            {/* Church logo placeholder */}
+            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center shrink-0">
+              <span className="text-2xl font-bold text-slate-400">{job.church.name.charAt(0)}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{job.title}</h1>
+              <p className="text-lg text-slate-600 mt-1">{job.church.name}</p>
+              <div className="flex flex-wrap items-center gap-3 mt-4">
+                <span className="badge bg-slate-100 text-slate-700">
+                  <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {job.location.city}, {job.location.stateCode}
                   {job.location.remote && " (Remote)"}
                 </span>
-                <span className="bg-gray-100 px-3 py-1 rounded-full text-gray-700">
+                <span className="badge bg-teal-50 text-teal-800">
                   {job.employmentType.replace("_", " ")}
                 </span>
                 {(job.compensationMin || job.compensationMax) && (
-                  <span className="bg-gray-100 px-3 py-1 rounded-full text-gray-700">
+                  <span className="badge bg-slate-100 text-slate-700">
                     ${job.compensationMin?.toLocaleString()} – ${job.compensationMax?.toLocaleString()}/yr
                   </span>
                 )}
+                <span className="text-xs text-slate-400">
+                  Posted {daysAgo} {daysAgo === 1 ? "day" : "days"} ago
+                </span>
               </div>
-              <p className="text-xs text-gray-400 mt-3">
-                Posted {job.datePosted} • Expires {job.validThrough}
-              </p>
+            </div>
+            {/* Apply button (desktop) */}
+            <div className="hidden lg:block shrink-0">
+              {job.applicationUrl ? (
+                <a
+                  href={job.applicationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-teal-700 text-white font-semibold px-8 py-3 rounded-xl hover:bg-teal-800 transition-colors text-sm"
+                >
+                  Apply Now →
+                </a>
+              ) : job.applicationEmail ? (
+                <a
+                  href={`mailto:${job.applicationEmail}?subject=Application: ${job.title}`}
+                  className="bg-teal-700 text-white font-semibold px-8 py-3 rounded-xl hover:bg-teal-800 transition-colors text-sm"
+                >
+                  Apply via Email →
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col lg:flex-row gap-10">
+          {/* Main Content */}
+          <div className="flex-1 min-w-0">
+            {/* Mobile Apply */}
+            <div className="lg:hidden mb-8">
+              {job.applicationUrl ? (
+                <a
+                  href={job.applicationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-center bg-teal-700 text-white font-semibold py-3.5 rounded-xl hover:bg-teal-800 transition-colors"
+                >
+                  Apply Now →
+                </a>
+              ) : job.applicationEmail ? (
+                <a
+                  href={`mailto:${job.applicationEmail}?subject=Application: ${job.title}`}
+                  className="block text-center bg-teal-700 text-white font-semibold py-3.5 rounded-xl hover:bg-teal-800 transition-colors"
+                >
+                  Apply via Email →
+                </a>
+              ) : null}
             </div>
 
-            {/* Description */}
-            <section className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">About This Role</h2>
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+            <section className="mb-10">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">About the Role</h2>
+              <div className="text-slate-700 leading-[1.8] whitespace-pre-line text-[0.95rem]">
                 {job.description}
               </div>
             </section>
 
-            {/* Responsibilities */}
             {job.responsibilities && (
-              <section className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Key Responsibilities
-                </h2>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+              <section className="mb-10">
+                <h2 className="text-xl font-bold text-slate-900 mb-4">Responsibilities</h2>
+                <div className="text-slate-700 leading-[1.8] whitespace-pre-line text-[0.95rem]">
                   {job.responsibilities}
                 </div>
               </section>
             )}
 
-            {/* Qualifications */}
             {job.qualifications && (
-              <section className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Qualifications
-                </h2>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+              <section className="mb-10">
+                <h2 className="text-xl font-bold text-slate-900 mb-4">Qualifications</h2>
+                <div className="text-slate-700 leading-[1.8] whitespace-pre-line text-[0.95rem]">
                   {job.qualifications}
                 </div>
               </section>
             )}
-
-            {/* About the church */}
-            <section className="mb-8 bg-gray-50 rounded-xl p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">
-                About {job.church.name}
-              </h2>
-              <p className="text-gray-600 text-sm mb-2">
-                {job.church.description}
-              </p>
-              <p className="text-sm text-gray-500">
-                📍 {job.location.city}, {job.location.state}
-                {job.church.denomination && ` • ${job.church.denomination}`}
-              </p>
-              {job.church.website && (
-                <a
-                  href={job.church.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-900 hover:underline mt-2 inline-block"
-                >
-                  Visit church website →
-                </a>
-              )}
-            </section>
           </div>
 
           {/* Sidebar */}
           <aside className="lg:w-80 shrink-0">
             <div className="sticky top-20 space-y-6">
-              {/* Apply CTA */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Apply for this position</h3>
-                {job.applicationUrl ? (
-                  <a
-                    href={job.applicationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-center bg-blue-900 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-800 transition-colors"
-                  >
-                    Apply Now →
-                  </a>
-                ) : job.applicationEmail ? (
-                  <a
-                    href={`mailto:${job.applicationEmail}?subject=Application: ${job.title}`}
-                    className="block text-center bg-blue-900 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-800 transition-colors"
-                  >
-                    Apply via Email →
-                  </a>
-                ) : null}
-                <p className="text-xs text-gray-400 mt-3 text-center">
-                  You'll be directed to the church's application process
-                </p>
+              {/* Key Facts Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-6">
+                <h3 className="font-bold text-slate-900 mb-4">Key Details</h3>
+                <dl className="space-y-4 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-slate-500">Location</dt>
+                    <dd className="font-medium text-slate-900">{job.location.city}, {job.location.stateCode}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-slate-500">Type</dt>
+                    <dd className="font-medium text-slate-900">{job.employmentType.replace("_", " ")}</dd>
+                  </div>
+                  {(job.compensationMin || job.compensationMax) && (
+                    <div className="flex justify-between">
+                      <dt className="text-slate-500">Salary</dt>
+                      <dd className="font-medium text-slate-900">
+                        ${job.compensationMin?.toLocaleString()} – ${job.compensationMax?.toLocaleString()}/yr
+                      </dd>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <dt className="text-slate-500">Posted</dt>
+                    <dd className="font-medium text-slate-900">{job.datePosted}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-slate-500">Expires</dt>
+                    <dd className="font-medium text-slate-900">{job.validThrough}</dd>
+                  </div>
+                </dl>
               </div>
 
-              {/* More jobs at this church */}
+              {/* Church Info Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-6">
+                <h3 className="font-bold text-slate-900 mb-3">About {job.church.name}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed mb-3">{job.church.description}</p>
+                <div className="space-y-1.5 text-sm text-slate-500">
+                  <p>📍 {job.location.city}, {job.location.state}</p>
+                  {job.church.denomination && <p>⛪ {job.church.denomination}</p>}
+                </div>
+                {job.church.website && (
+                  <a
+                    href={job.church.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-sm text-teal-700 hover:text-teal-800 font-medium mt-3"
+                  >
+                    Visit church website
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+
+              {/* More jobs at church */}
               {churchJobs.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">
+                <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-6">
+                  <h3 className="font-bold text-slate-900 mb-3">
                     More jobs at {job.church.name}
                   </h3>
                   <ul className="space-y-3">
                     {churchJobs.map((cj) => (
                       <li key={cj.id}>
-                        <a
-                          href={`/jobs/${cj.slug}`}
-                          className="text-sm text-blue-900 hover:underline"
-                        >
+                        <a href={`/jobs/${cj.slug}`} className="text-sm text-teal-700 hover:text-teal-800 font-medium">
                           {cj.title}
                         </a>
-                        <p className="text-xs text-gray-500">{cj.employmentType.replace("_", " ")}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{cj.employmentType.replace("_", " ")}</p>
                       </li>
                     ))}
                   </ul>
@@ -211,16 +249,14 @@ export default async function JobDetailPage({ params }: Props) {
               )}
 
               {/* Employer CTA */}
-              <div className="bg-blue-50 rounded-xl p-6">
-                <p className="font-semibold text-blue-900 text-sm mb-2">
-                  Hiring at your church?
-                </p>
-                <p className="text-xs text-gray-600 mb-3">
-                  Post unlimited jobs for one flat fee. No per-post charges. Every listing structured for Google for Jobs eligibility.
+              <div className="bg-teal-50 rounded-2xl p-6 border border-teal-100">
+                <p className="font-bold text-teal-900 text-sm mb-2">Hiring at your church?</p>
+                <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+                  Post unlimited jobs for one flat fee. Every listing structured for Google for Jobs eligibility.
                 </p>
                 <a
                   href="/employer/post-job"
-                  className="block text-center text-sm bg-blue-900 text-white py-2 rounded-lg hover:bg-blue-800"
+                  className="block text-center text-sm font-semibold bg-teal-700 text-white py-2.5 rounded-xl hover:bg-teal-800 transition-colors"
                 >
                   Post a Job
                 </a>
@@ -229,32 +265,39 @@ export default async function JobDetailPage({ params }: Props) {
           </aside>
         </div>
 
-        {/* Related jobs */}
+        {/* Related Jobs */}
         {relatedJobs.length > 0 && (
-          <section className="mt-16 pt-10 border-t border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Related Jobs</h2>
+          <section className="mt-16 pt-10 border-t border-slate-200">
+            <h2 className="text-xl font-bold text-slate-900 mb-6">Related Jobs</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {relatedJobs.map((rj) => (
                 <a
                   key={rj.id}
                   href={`/jobs/${rj.slug}`}
-                  className="border border-gray-200 rounded-lg p-5 hover:border-blue-300 hover:shadow-md transition-all"
+                  className="group bg-white rounded-xl border border-slate-200 p-5 hover:border-teal-300 hover:card-shadow-hover transition-all"
                 >
-                  <h3 className="font-semibold text-gray-900">{rj.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{rj.church.name}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    📍 {rj.location.city}, {rj.location.stateCode}
-                  </p>
-                  {(rj.compensationMin || rj.compensationMax) && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      ${rj.compensationMin?.toLocaleString()} – ${rj.compensationMax?.toLocaleString()}/yr
-                    </p>
-                  )}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
+                      <span className="text-sm font-bold text-slate-400">{rj.church.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm text-slate-900 group-hover:text-teal-700 transition-colors">
+                        {rj.title}
+                      </h3>
+                      <p className="text-xs text-slate-500">{rj.church.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-slate-500">
+                    <span>📍 {rj.location.city}, {rj.location.stateCode}</span>
+                    {(rj.compensationMin || rj.compensationMax) && (
+                      <span>${rj.compensationMin?.toLocaleString()} – ${rj.compensationMax?.toLocaleString()}/yr</span>
+                    )}
+                  </div>
                 </a>
               ))}
             </div>
-            <div className="text-center mt-6">
-              <a href="/jobs" className="text-blue-900 font-semibold hover:underline">
+            <div className="text-center mt-8">
+              <a href="/jobs" className="text-sm font-semibold text-teal-700 hover:text-teal-800">
                 Browse all jobs →
               </a>
             </div>

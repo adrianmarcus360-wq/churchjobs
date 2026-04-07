@@ -3,145 +3,122 @@ import { PRICING_PLANS } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description:
-    "One plan, unlimited church job postings. $99/month or save 50%+ with annual billing. No per-post fees.",
+  description: "One plan, unlimited church job postings. $99/month or save 50%+ with annual billing. No per-post fees.",
 };
 
 export default function PricingPage() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-16">
-      <div className="text-center mb-12">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <div className="text-center mb-14">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
           One plan. Unlimited jobs.
         </h1>
-        <p className="mt-4 text-lg text-gray-600 max-w-xl mx-auto">
-          Stop paying per post every time a role opens up. One flat fee covers
-          every position your church needs to fill.
+        <p className="mt-4 text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
+          If your church posts more than one job a year, unlimited usually costs
+          less than traditional per-post boards.
         </p>
       </div>
 
       {/* Plans */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
         {PRICING_PLANS.map((plan) => (
           <div
             key={plan.id}
-            className={`rounded-2xl p-8 ${
+            className={`rounded-2xl p-8 relative ${
               plan.highlighted
-                ? "bg-blue-900 text-white ring-2 ring-blue-900 relative"
-                : "bg-white border border-gray-200"
+                ? "bg-teal-800 text-white ring-2 ring-teal-700"
+                : "bg-white border border-slate-200 card-shadow"
             }`}
           >
             {plan.highlighted && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-yellow-400 text-blue-900 text-xs font-bold px-3 py-1 rounded-full">
+                <span className="bg-amber-400 text-slate-900 text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap shadow-sm">
                   BEST VALUE — Save $689+/yr
                 </span>
               </div>
             )}
-            <h2
-              className={`text-xl font-bold ${
-                plan.highlighted ? "text-white" : "text-gray-900"
-              }`}
-            >
+            <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${plan.highlighted ? "text-teal-200" : "text-slate-500"}`}>
+              {plan.id === "unlimited-monthly" && "For flexible month-to-month hiring"}
+              {plan.id === "unlimited-annual" && "For churches that hire more than once a year"}
+              {plan.id === "single-post" && "For churches truly filling one role"}
+            </p>
+            <h2 className={`text-xl font-bold ${plan.highlighted ? "text-white" : "text-slate-900"}`}>
               {plan.name}
             </h2>
-            <div
-              className={`mt-4 text-4xl font-bold ${
-                plan.highlighted ? "text-white" : "text-blue-900"
-              }`}
-            >
+            <div className={`mt-4 text-4xl font-extrabold ${plan.highlighted ? "text-white" : "text-teal-700"}`}>
               ${plan.price}
-              <span
-                className={`text-base font-normal ${
-                  plan.highlighted ? "text-blue-200" : "text-gray-500"
-                }`}
-              >
-                /
-                {plan.interval === "monthly"
-                  ? "month"
-                  : plan.interval === "annual"
-                  ? "year"
-                  : "one-time"}
+              <span className={`text-base font-medium ${plan.highlighted ? "text-teal-200" : "text-slate-500"}`}>
+                /{plan.interval === "monthly" ? "month" : plan.interval === "annual" ? "year" : "one-time"}
               </span>
             </div>
             {plan.interval === "annual" && (
-              <p
-                className={`mt-1 text-sm ${
-                  plan.highlighted ? "text-blue-200" : "text-gray-500"
-                }`}
-              >
-                That's ~$41.58/month
+              <p className={`mt-1 text-sm ${plan.highlighted ? "text-teal-200" : "text-slate-500"}`}>
+                That&apos;s ~$41.58/month
               </p>
             )}
-            <p
-              className={`mt-3 text-sm ${
-                plan.highlighted ? "text-blue-200" : "text-gray-600"
-              }`}
-            >
-              {plan.description}
+            <p className={`mt-3 text-sm leading-relaxed ${plan.highlighted ? "text-teal-100" : "text-slate-600"}`}>
+              {plan.id === "unlimited-monthly"
+                ? "Unlimited jobs, cancel anytime. Best for churches with flexible hiring needs."
+                : plan.id === "unlimited-annual"
+                ? "Same unlimited access — lock in your rate and save over 50%."
+                : "One job listing, live for 90 days. Only if you truly need just one posting."}
             </p>
             <ul className="mt-6 space-y-3">
               {plan.features.map((feature) => (
                 <li
                   key={feature}
-                  className={`flex items-start text-sm ${
-                    plan.highlighted ? "text-blue-100" : "text-gray-600"
-                  }`}
+                  className={`flex items-start text-sm ${plan.highlighted ? "text-teal-100" : "text-slate-600"}`}
                 >
-                  <span
-                    className={`mr-2 ${
-                      plan.highlighted ? "text-yellow-400" : "text-green-500"
-                    }`}
-                  >
-                    ✓
-                  </span>
+                  <span className={`mr-2.5 mt-0.5 ${plan.highlighted ? "text-amber-400" : "text-teal-600"}`}>✓</span>
                   {feature}
                 </li>
               ))}
             </ul>
             <a
               href="/employer/post-job"
-              className={`mt-8 block text-center font-semibold py-3 px-6 rounded-lg transition-colors ${
+              className={`mt-8 block text-center font-semibold py-3 px-6 rounded-xl transition-colors ${
                 plan.highlighted
-                  ? "bg-white text-blue-900 hover:bg-blue-50"
-                  : "bg-blue-900 text-white hover:bg-blue-800"
+                  ? "bg-white text-teal-800 hover:bg-teal-50"
+                  : "bg-teal-700 text-white hover:bg-teal-800"
               }`}
             >
-              {plan.interval === "one-time" ? "Buy Single Listing" : "Get Started"}
+              {plan.interval === "one-time" ? "Buy Single Listing" : "Choose Plan"}
             </a>
           </div>
         ))}
       </div>
 
-      {/* Comparison with incumbents */}
-      <div className="bg-gray-50 rounded-2xl p-8 mb-16">
-        <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
-          How we compare
+      {/* Comparison Box */}
+      <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-8 sm:p-10 mb-20">
+        <h3 className="text-xl font-bold text-slate-900 mb-2 text-center">
+          How we compare to per-post boards
         </h3>
+        <p className="text-sm text-slate-500 text-center mb-8">
+          Most church job boards charge $99–$199 per listing. Here&apos;s the math.
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Feature</th>
-                <th className="text-center py-3 px-4 font-semibold text-blue-900">ChurchJobs</th>
-                <th className="text-center py-3 px-4 font-semibold text-gray-500">Typical Church Job Board</th>
+              <tr className="border-b border-slate-200">
+                <th className="text-left py-3 px-4 font-semibold text-slate-900">Scenario</th>
+                <th className="text-center py-3 px-4 font-bold text-teal-700">ChurchJobs</th>
+                <th className="text-center py-3 px-4 font-semibold text-slate-500">Typical Per-Post Board</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {[
-                ["Unlimited postings", "✓ Included", "$99–199 per post"],
-                ["Monthly cost for 3 jobs", "$99 flat", "$297–597+"],
-                ["Monthly cost for 10 jobs", "$99 flat", "$990–1,990+"],
-                ["Google for Jobs eligibility", "✓ Built in", "Varies"],
-                ["Dedicated job pages", "✓ Clean, SEO-optimized", "Sometimes"],
+                ["1 job per year", "$99/mo or $499/yr", "$99–199"],
+                ["3 jobs per year", "$99/mo or $499/yr", "$297–597"],
+                ["5 jobs per year", "$99/mo or $499/yr", "$495–995"],
+                ["10 jobs per year", "$99/mo or $499/yr", "$990–1,990"],
+                ["Google for Jobs structured data", "✓ Built in", "Varies"],
                 ["Resume database upsell", "Not needed", "$50–150/mo extra"],
-                ["Long-term contracts", "None — cancel anytime", "Often required"],
-                ["Support model", "Email (fast, simple)", "Phone/email/demos"],
+                ["Contracts", "None — cancel anytime", "Often required"],
               ].map(([feature, ours, theirs]) => (
                 <tr key={feature}>
-                  <td className="py-3 px-4 text-gray-700">{feature}</td>
-                  <td className="py-3 px-4 text-center font-medium text-blue-900">{ours}</td>
-                  <td className="py-3 px-4 text-center text-gray-500">{theirs}</td>
+                  <td className="py-3 px-4 text-slate-700 font-medium">{feature}</td>
+                  <td className="py-3 px-4 text-center font-semibold text-teal-700">{ours}</td>
+                  <td className="py-3 px-4 text-center text-slate-500">{theirs}</td>
                 </tr>
               ))}
             </tbody>
@@ -149,9 +126,9 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* FAQ excerpt */}
+      {/* FAQ */}
       <div className="max-w-3xl mx-auto">
-        <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+        <h3 className="text-xl font-bold text-slate-900 mb-8 text-center">
           Common pricing questions
         </h3>
         <div className="space-y-6">
@@ -173,14 +150,14 @@ export default function PricingPage() {
               a: "No. You sign up, post jobs, and manage everything through your dashboard. No contracts, no setup fees, no required demos.",
             },
           ].map(({ q, a }) => (
-            <div key={q} className="border-b border-gray-100 pb-4">
-              <h4 className="font-semibold text-gray-900 mb-2">{q}</h4>
-              <p className="text-sm text-gray-600">{a}</p>
+            <div key={q} className="border-b border-slate-100 pb-5">
+              <h4 className="font-semibold text-slate-900 mb-2">{q}</h4>
+              <p className="text-sm text-slate-600 leading-relaxed">{a}</p>
             </div>
           ))}
         </div>
         <div className="text-center mt-8">
-          <a href="/faq" className="text-blue-900 font-medium hover:underline">
+          <a href="/faq" className="text-sm font-semibold text-teal-700 hover:text-teal-800">
             See all FAQs →
           </a>
         </div>
