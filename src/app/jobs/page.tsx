@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { getLiveJobs } from "@/data/sample-jobs";
+import { getLiveJobs, DENOMINATIONS } from "@/data/sample-jobs";
 import { JOB_CATEGORIES, US_STATES } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "Browse Church Jobs",
+  title: "Browse Church Jobs — Pastors, Worship Leaders, Youth Ministry & More",
   description:
-    "Search church job openings — pastors, worship leaders, youth ministry, children's ministry, administrative, operations, and more.",
+    "Search 400+ church job openings across the United States — pastors, worship leaders, youth ministry, children's ministry, administrative, and more. Filter by denomination, state, and role.",
 };
 
 export default function BrowseJobsPage() {
@@ -16,9 +16,12 @@ export default function BrowseJobsPage() {
       {/* Search Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
             Church Job Openings
           </h1>
+          <p className="text-sm text-slate-500 mb-6">
+            Real ministry positions from churches across the United States
+          </p>
           {/* Search Bar */}
           <div className="bg-slate-50 rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-3xl">
             <div className="flex-1 flex items-center gap-3 px-4 py-2.5 bg-white rounded-xl">
@@ -57,7 +60,7 @@ export default function BrowseJobsPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filter Sidebar */}
           <aside className="lg:w-64 shrink-0">
-            <div className="sticky top-20 space-y-8">
+            <div className="sticky top-20 space-y-8 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
               {/* Ministry Area */}
               <div>
                 <h3 className="font-semibold text-sm text-slate-900 mb-3">Ministry Area</h3>
@@ -81,23 +84,41 @@ export default function BrowseJobsPage() {
                 </div>
               </div>
 
-              {/* Location */}
+              {/* Denomination */}
               <div>
-                <h3 className="font-semibold text-sm text-slate-900 mb-3">Location</h3>
+                <h3 className="font-semibold text-sm text-slate-900 mb-3">Denomination</h3>
+                <div className="space-y-2">
+                  {DENOMINATIONS.filter((d) => d.count > 0).map((denom) => (
+                    <label key={denom.value} className="flex items-center gap-2.5 cursor-pointer group">
+                      <input type="checkbox" className="rounded border-slate-300 text-teal-700 focus:ring-teal-500 w-4 h-4" />
+                      <span className="text-sm text-slate-600 group-hover:text-teal-700">{denom.label}</span>
+                      <span className="text-xs text-slate-400 ml-auto">{denom.count}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Location (State) */}
+              <div>
+                <h3 className="font-semibold text-sm text-slate-900 mb-3">State</h3>
                 <div className="space-y-2">
                   {(() => {
-                    const states = [...new Set(jobs.map((j) => j.location.stateCode))].sort();
-                    return states.map((sc) => {
-                      const stateName = US_STATES.find((s) => s.code === sc)?.name || sc;
-                      const count = jobs.filter((j) => j.location.stateCode === sc).length;
-                      return (
-                        <label key={sc} className="flex items-center gap-2.5 cursor-pointer group">
-                          <input type="checkbox" className="rounded border-slate-300 text-teal-700 focus:ring-teal-500 w-4 h-4" />
-                          <span className="text-sm text-slate-600 group-hover:text-teal-700">{stateName}</span>
-                          <span className="text-xs text-slate-400 ml-auto">{count}</span>
-                        </label>
-                      );
+                    const stateCounts: Record<string, number> = {};
+                    jobs.forEach((j) => {
+                      stateCounts[j.location.stateCode] = (stateCounts[j.location.stateCode] || 0) + 1;
                     });
+                    return Object.entries(stateCounts)
+                      .sort(([, a], [, b]) => b - a)
+                      .map(([sc, count]) => {
+                        const stateName = US_STATES.find((s) => s.code === sc)?.name || sc;
+                        return (
+                          <label key={sc} className="flex items-center gap-2.5 cursor-pointer group">
+                            <input type="checkbox" className="rounded border-slate-300 text-teal-700 focus:ring-teal-500 w-4 h-4" />
+                            <span className="text-sm text-slate-600 group-hover:text-teal-700">{stateName}</span>
+                            <span className="text-xs text-slate-400 ml-auto">{count}</span>
+                          </label>
+                        );
+                      });
                   })()}
                 </div>
               </div>
@@ -123,15 +144,15 @@ export default function BrowseJobsPage() {
 
               {/* Employer CTA */}
               <div className="bg-teal-50 rounded-xl p-5 border border-teal-100">
-                <p className="font-semibold text-teal-900 text-sm mb-2">Hiring at your church?</p>
+                <p className="font-semibold text-teal-900 text-sm mb-2">Is this your church?</p>
                 <p className="text-xs text-slate-600 mb-4 leading-relaxed">
-                  Post unlimited jobs for one flat fee. No per-post charges.
+                  Claim your listing to see who&apos;s applied. Get full access to candidate profiles.
                 </p>
                 <a
                   href="/employer/post-job"
                   className="block text-center text-xs font-semibold bg-teal-700 text-white py-2.5 rounded-xl hover:bg-teal-800 transition-colors"
                 >
-                  Post a Job
+                  Claim Your Listing
                 </a>
               </div>
             </div>
@@ -151,12 +172,20 @@ export default function BrowseJobsPage() {
                     className="group block bg-white rounded-xl border border-slate-200 p-5 sm:p-6 hover:border-teal-300 hover:card-shadow-hover transition-all"
                   >
                     <div className="flex items-start gap-4">
-                      {/* Logo placeholder */}
-                      <div className="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
-                        <span className="text-base font-bold text-slate-400">
-                          {job.church.name.charAt(0)}
-                        </span>
-                      </div>
+                      {/* Church logo */}
+                      {job.church.logoUrl ? (
+                        <img
+                          src={job.church.logoUrl}
+                          alt={job.church.name}
+                          className="w-11 h-11 rounded-xl object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
+                          <span className="text-base font-bold text-slate-400">
+                            {job.church.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4">
                           <div>
@@ -165,6 +194,9 @@ export default function BrowseJobsPage() {
                             </h2>
                             <p className="text-sm text-slate-600 mt-0.5">
                               {job.church.name}
+                              {job.church.denomination && (
+                                <span className="text-slate-400"> · {job.church.denomination}</span>
+                              )}
                             </p>
                           </div>
                           <span className="badge bg-teal-50 text-teal-800 shrink-0">
@@ -195,6 +227,15 @@ export default function BrowseJobsPage() {
                 );
               })}
             </div>
+
+            {/* Load more */}
+            {jobs.length > 20 && (
+              <div className="mt-8 text-center">
+                <p className="text-sm text-slate-500">
+                  Showing {Math.min(jobs.length, 50)} of {jobs.length} jobs
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+export const dynamic = "force-static";
 import { getLiveJobs } from "@/data/sample-jobs";
 import { generateJobFeed } from "@/lib/structured-data";
 
